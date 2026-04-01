@@ -22,20 +22,25 @@ pipeline {
         }
 
         stage('Docker Build') {
-            steps {
-                sh 'docker build -t my-java-app .'
-            }
+    steps {
+        script {
+            docker.build('my-java-app', '.')
         }
+    }
+}
 
         stage('Deploy') {
-            steps {
-                sh '''
-                docker stop my-app || true
-                docker rm my-app || true
-                docker run -d --name my-app my-java-app
-                '''
+    steps {
+        script {
+            def exists = sh(script: "docker ps -a -q -f name=my-app", returnStdout: true).trim()
+            if (exists) {
+                sh "docker stop my-app"
+                sh "docker rm my-app"
             }
+            sh "docker run -d --name my-app -p 8080:8080 my-java-app"
         }
+    }
+}
 
         stage('Archive') {
             steps {
