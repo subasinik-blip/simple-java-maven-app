@@ -3,6 +3,9 @@ pipeline {
     options {
         skipStagesAfterUnstable()
     }
+    tools {
+        maven 'Maven-3.9.9'  // make sure this matches your configured Maven
+    }
     stages {
         stage('Build') {
             steps {
@@ -19,9 +22,17 @@ pipeline {
                 }
             }
         }
+        stage('Docker Build') {
+            steps {
+                script {
+                    // Builds Docker image using Dockerfile in repo
+                    docker.build('my-java-app', '.')
+                }
+            }
+        }
         stage('Deliver') { 
             steps {
-                sh './jenkins/scripts/deliver.sh' 
+                sh './jenkins/scripts/deliver.sh'
             }
         }
     }
