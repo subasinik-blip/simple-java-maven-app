@@ -21,6 +21,22 @@ pipeline {
             }
         }
 
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t my-java-app .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                docker stop my-app || true
+                docker rm my-app || true
+                docker run -d --name my-app my-java-app
+                '''
+            }
+        }
+
         stage('Archive') {
             steps {
                 archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
